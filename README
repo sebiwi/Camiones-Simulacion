@@ -1,0 +1,12 @@
+Camiones Autonomos
+
+Programa de simulacion. 
+
+- "set" contiene las condiciones del funcionamiento del programa.
+- "list" contiene las funciones de manejo de listas.
+- "main"... es el main.
+
+Para ejecutar, correr el makefile adjunto, con "make". Esto creará un 
+ejecutable llamado "proyecto". Para eliminar los targets, usar "make clean".
+
+Salud!
