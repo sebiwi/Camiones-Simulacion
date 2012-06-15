@@ -6,7 +6,7 @@
 #include "set.h"
 
 
-int main(){	set ();
-		
-
+void main(){
+	set ();
+	
 }
