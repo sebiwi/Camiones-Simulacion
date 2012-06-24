@@ -5,6 +5,8 @@ Programa de simulacion.
 - "set" contiene las condiciones del funcionamiento del programa.
 - "list" contiene las funciones de manejo de listas.
 - "main"... es el main.
+- "Probabilidades.txt" contiene las probabilidades de falla de los camiones,
+   las cuales son leidas desde el programa en ejecucion.
 
 Para ejecutar, correr el makefile adjunto, con "make". Esto creará un 
 ejecutable llamado "proyecto". Para eliminar los targets, usar "make clean".
