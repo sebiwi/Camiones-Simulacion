@@ -5,9 +5,10 @@ Programa de simulacion.
 - "set" contiene las condiciones del funcionamiento del programa.
 - "list" contiene las funciones de manejo de listas.
 - "main"... es el main.
+- "probabilidades.txt" contiene las probabilidades de falla del camion.
 
 Para ejecutar, correr el makefile adjunto, con "make". Esto creará un 
-ejecutable llamado "proyecto". Para eliminar los targets, usar "make clean".
+ejecutable llamado "proyecto". Para eliminar el ejecutable, usar "make clean".
 
 Para mas informacion sobre como trabajar con esto, leer help.github.com/fork-a-repo/.
 
