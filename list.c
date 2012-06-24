@@ -15,6 +15,7 @@ pcamion creacamion(int id, double tiempo) //Constructor de camión
 		pc->next=NULL;
 		pc->tiempo_funcionamiento=0;
 		pc->toneladas_camion=0;
+		pc->tiempo_trayecto=0;
 	}
 	return pc;
 }
