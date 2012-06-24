@@ -33,7 +33,7 @@ randomize();
  
     	for(temp_int = 0; temp_int < 18; temp_int++) {
         	fscanf(f, "%lf",&probabilidades_camiones[temp_int]);
-        	printf("%lf\n",probabilidades_camiones[temp_int]);
+        	//printf("%lf\n",probabilidades_camiones[temp_int]);
  	    }
  
  	   close(f);
