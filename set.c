@@ -72,6 +72,7 @@ randomize();
 							temp->tiempo_trayecto=randomABi(1,99)/10; 			//tiempo en el que falla, suponiendo que en 10 min llega a faena
 							temp->tiempo+=temp->tiempo_trayecto;
 							temp->tiempo_funcionamiento+=temp->tiempo_trayecto;            
+
 							printf("Camion %d sufre falla motor en t=%e\n",temp->id,temp->tiempo);
 							listainicio=eliminarcamion(listainicio);
 							temp->next=NULL;
@@ -132,6 +133,7 @@ randomize();
 							temp->tiempo_trayecto=randomABi(0,(10-temp->tiempo_trayecto)*10)/10; //define tiempo en el que falla durante el trayecto
 							temp->tiempo+=temp->tiempo_trayecto;
 							temp->tiempo_funcionamiento+=temp->tiempo_trayecto;
+
 							printf("Camion  %d sufre falla motor en t=%e\n",temp->id,temp->tiempo);
 							//temp->tiempo+=5;
 							listatrayecto=eliminarcamion(listatrayecto);
@@ -222,10 +224,12 @@ randomize();
 					printf("Camion  %d se ha terminado de cargar, vuelve a planta en t=%e\n",temp->id,temp->tiempo);
 							
 			
+
 					if(temp_int<probabilidades_camiones[((temp->id)-1)%18]){
 							temp->tiempo_trayecto=randomABi(0,99)/10;
 							temp->tiempo+=temp->tiempo_trayecto;
 							temp->tiempo_funcionamiento+=temp->tiempo_trayecto;
+
 							printf("Camion  %d sufre falla motor en t=%e\n",temp->id,temp->tiempo);
 							//temp->tiempo+=5;
 							listacargado=eliminarcamion(listacargado);
