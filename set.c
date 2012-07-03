@@ -1,55 +1,72 @@
 #include <stdio.h>
 #include <stdlib.h> 
+#include <math.h>
 
 #include "list.h"
 #include "set.h"
 
-void randomize() //Empieza el generador de numeros aleatorios usando como semilla el tiempo
-{
-	time_t tim;
-	time(&tim);
-	srand(tim);
-}
+double ran(long *idum) {
 
-int randomABi(int A, int B){//Obtiene un numero aleatorio dentro del intervalo [A,B]
-	return((int)((double) rand()/RAND_MAX*(B+1-A)+A));
+    int j;
+    long k;
+    static long iy=0;
+    static long iv[NTAB];
+    double temp;
+
+    if (*idum <= 0 || !iy)
+    {
+
+            if (-(*idum) < 1) *idum=1; /*Be sure to prevent idum = 0*/
+            else *idum = -(*idum);
+            for (j=NTAB+7;j>=0;j--)		/*Load the shu.e table (after 8 warm-ups)*/
+            {
+                    k=(*idum)/IQ;
+                    *idum=IA*(*idum-k*IQ)-IR*k;
+                    if (*idum < 0)
+                    *idum += IM;
+                    if (j < NTAB)
+                    iv[j] = *idum;
+            }
+            iy=iv[0];
+    }
+    k=(*idum)/IQ;					/*Start here when not initializing.*/
+    *idum=IA*(*idum-k*IQ)-IR*k;
+    if (*idum < 0) *idum += IM;
+    j=iy/NDIV;
+    iy=iv[j];
+    iv[j] = *idum;
+    if ((temp=AM*iy) > RNMX) return RNMX;
+    else return temp;
 }
 
 void inicializar(){
 }
 
 int set() {
-randomize();
 	int ingresando=1, temp_int, carga_ocupada=0;
-	double current=0, termino, toneladas=0,temp_tiempo;
+	double current=0, termino, toneladas=0,temp_tiempo,temp_double,media_pala,media_camion, media_repcamion;
+	long idum = -275920;
 	pcamion listainicio=NULL,listacargado=NULL,listadescarga=NULL,listamotor=NULL,listainterferencia=NULL,listatrayecto=NULL, listacarga=NULL, listapala=NULL, temp=NULL, listatermino=NULL;
-	FILE *f=fopen("probabilidades.txt","r");
- 
-    	if(f==NULL){
-		printf("No hay archivo con probabilidades de falla");
-        	return 1;}
- 
-    	double probabilidades_camiones[18];        
- 
-    	for(temp_int = 0; temp_int < 18; temp_int++) {
-        	fscanf(f, "%lf",&probabilidades_camiones[temp_int]);
-        	//printf("%lf\n",probabilidades_camiones[temp_int]);
- 	    }
- 
- 	   close(f);
- 
 
 	printf("Simulador de camiones autonomos!\n");
+	printf("Ingrese semilla distinta de 0 para el generador de numeros aleatorios:\n");
+	scanf("%d",&idum);
+	printf("Ingrese media de tiempo entre fallas de los camiones[Default: 1472]\n");
+	scanf("%lf",&media_camion);
+	printf("Ingrese media de tiempo de reparacion de camion [Default: 360]\n");
+	scanf("%lf",&media_repcamion);
+	printf("Ingrese media de tiempo de reparacion de palas [Default: 105]\n");
+	scanf("%lf",&media_pala);	
 	printf("Ingrese tiempo de simulacion [Minutos]\n");
 	scanf("%lf",&termino);
-	listatermino=insertarenorden(listatermino,creacamion(314159,termino));
+	listatermino=insertarenorden(listatermino,creacamion(314159,termino,0,NULL,0));
 	
 	while(ingresando==1){
 		printf("\nIngrese id del camion a insertar\n");
 		scanf("%d",&temp_int);
 		printf("\nIngrese tiempo de partida del camion\n");
 		scanf("%lf",&temp_tiempo);
-		listainicio=insertarenorden(listainicio,creacamion(temp_int,temp_tiempo));
+		listainicio=insertarenorden(listainicio,creacamion(temp_int,temp_tiempo,termino,&idum,media_repcamion));
 		printf("\nInsertar otro camion? (1=si, 2=no)\n");
 		scanf("%d",&ingresando);
 		}
@@ -64,14 +81,15 @@ randomize();
 					temp->senal=1;
 					temp->motor=1;          //Variables de estado
 					temp->velocidad=1;
-					temp->carga=0;
- 					temp_int=randomABi(0,100);			
+					temp->carga=0;			
 					printf("Camion %d parte hacia faena en t=%e\n",temp->id,temp->tiempo);
-
-					if(temp_int<probabilidades_camiones[((temp->id)-1)%18]){
-							temp->tiempo_trayecto=randomABi(1,99)/10; 			//tiempo en el que falla, suponiendo que en 10 min llega a faena
-							temp->tiempo+=temp->tiempo_trayecto;
-							temp->tiempo_funcionamiento+=temp->tiempo_trayecto;            
+					
+					while(current>temp->falla->tiempo)temp->falla=temp->falla->next;
+					
+					if(temp->tiempo+10>temp->falla->tiempo){
+							temp->tiempo+=((temp->falla->tiempo)-current);
+							temp->tiempo_funcionamiento+=((temp->falla->tiempo)-current);
+							temp->tiempo_trayecto=((temp->falla->tiempo)-current);            
 
 							printf("Camion %d sufre falla motor en t=%e\n",temp->id,temp->tiempo);
 							listainicio=eliminarcamion(listainicio);
@@ -105,7 +123,7 @@ randomize();
 		
 
 		if(temp==listamotor){
-					temp->tiempo+=5;		//tiempo de reparacion (fijo)
+					temp->tiempo+=(-media_repcamion*log(ran(&idum)));//tiempo de reparacion (variable)
 					printf("Camion %d es reparado en t=%e\n",temp->id,temp->tiempo);
 					listamotor=eliminarcamion(listamotor);
 					temp->next=NULL;
@@ -126,16 +144,15 @@ randomize();
 					continue;
 					}
 
-		if(temp==listatrayecto){  
-					temp_int=randomABi(0,100);
+		if(temp==listatrayecto){ 
+					while(current>temp->falla->tiempo)temp->falla=temp->falla->next;
 			
-					if(temp_int<probabilidades_camiones[((temp->id)-1)%18]){
-							temp->tiempo_trayecto=randomABi(0,(10-temp->tiempo_trayecto)*10)/10; //define tiempo en el que falla durante el trayecto
-							temp->tiempo+=temp->tiempo_trayecto;
-							temp->tiempo_funcionamiento+=temp->tiempo_trayecto;
+					if(temp->tiempo+(10-temp->tiempo_trayecto)>temp->falla->tiempo){
+							temp->tiempo_trayecto+=((temp->falla->tiempo)-current); 
+							temp->tiempo+=((temp->falla->tiempo)-current);
+							temp->tiempo_funcionamiento+=((temp->falla->tiempo)-current);
 
 							printf("Camion  %d sufre falla motor en t=%e\n",temp->id,temp->tiempo);
-							//temp->tiempo+=5;
 							listatrayecto=eliminarcamion(listatrayecto);
 							temp->next=NULL;
 							temp->motor=0;
@@ -156,7 +173,7 @@ randomize();
 							}	*/			  
 					if(temp->direccion==1){	
 							temp->tiempo+=(10-temp->tiempo_trayecto);
-							temp->tiempo_funcionamiento+=10;
+							temp->tiempo_funcionamiento+=(10-temp->tiempo_trayecto);
 							printf("Llega camion %d a cola de carga en t=%e\n",temp->id,temp->tiempo);
 							listatrayecto=eliminarcamion(listatrayecto);
 							temp->next=NULL;
@@ -166,7 +183,7 @@ randomize();
 							}
 					if(temp->direccion==0){
 							temp->tiempo+=(10-temp->tiempo_trayecto);
-							temp->tiempo_funcionamiento+=10;
+							temp->tiempo_funcionamiento+=(10-temp->tiempo_trayecto);
 							printf("Llega camion %d a descarga en t=%e\n",temp->id,temp->tiempo);
 							listatrayecto=eliminarcamion(listatrayecto);
 							temp->next=NULL;
@@ -177,15 +194,16 @@ randomize();
 					}
 
 		if(temp==listacarga){	
-					temp_int=randomABi(0,100);
+					temp_double=ran(&idum);
 					carga_ocupada=1;
 					temp->tiempo_trayecto=0;			//resetea valor de tiempo de trayecto
 				    	
 					printf("Camion %d se empieza a cargar en t=%e\n",temp->id,temp->tiempo);
 
-					if(temp_int<20){ 
+					if(temp_double<0.40625){ 
 							printf("Falla de pala mientras se carga camion  %d\n",temp->id);
-							temp->tiempo+=10;
+
+							temp->tiempo+=(-media_pala* log(ran(&idum)));
 							listacarga=eliminarcamion(listacarga);
 							temp->next=NULL;
 							listapala=insertarenorden(listapala,temp);
@@ -216,7 +234,7 @@ randomize();
 					temp->direccion=0;
 					temp->carga=1;
 					temp->velocidad=1;
-					temp_int=randomABi(0,100);
+					temp_double=ran(&idum);
 					carga_ocupada=0;			//??
 					if(listacarga!=NULL){	listacarga->tiempo=temp->tiempo+0.5;
 								listacarga->tiempo_funcionamiento+=0.5;
@@ -224,11 +242,12 @@ randomize();
 					printf("Camion  %d se ha terminado de cargar, vuelve a planta en t=%e\n",temp->id,temp->tiempo);
 							
 			
-
-					if(temp_int<probabilidades_camiones[((temp->id)-1)%18]){
-							temp->tiempo_trayecto=randomABi(0,99)/10;
-							temp->tiempo+=temp->tiempo_trayecto;
-							temp->tiempo_funcionamiento+=temp->tiempo_trayecto;
+					while(current>temp->falla->tiempo)temp->falla=temp->falla->next;
+					
+					if(temp->tiempo+10>temp->falla->tiempo){
+							temp->tiempo_trayecto=((temp->falla->tiempo)-current);
+							temp->tiempo+=((temp->falla->tiempo)-current);
+							temp->tiempo_funcionamiento+=((temp->falla->tiempo)-current);
 
 							printf("Camion  %d sufre falla motor en t=%e\n",temp->id,temp->tiempo);
 							//temp->tiempo+=5;

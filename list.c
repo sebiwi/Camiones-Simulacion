@@ -1,18 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "list.h"
 #include "set.h"
 
-pcamion creacamion(int id, double tiempo) //Constructor de camión
+pcamion creacamion(int id, double tiempo, double termino, long *idum, double media_repcamion) //Constructor de camión
 {
 	pcamion pc=NULL;
-	
+	double temp= tiempo;
+
 	if((pc=(pcamion) malloc(sizeof(camion))) ==NULL) exit(0);
 	else
 	{	pc->id=id;
 		pc->tiempo=tiempo;
 		pc->next=NULL;
+
+		while(temp<termino){	
+					temp+=(-media_repcamion*log(ran(idum)));
+					pc->falla=insertarenorden(pc->falla,creacamion(0,temp,0,NULL,0));
+					
+					}		
+
 		pc->tiempo_funcionamiento=0;
 		pc->toneladas_camion=0;
 		pc->tiempo_trayecto=0;
