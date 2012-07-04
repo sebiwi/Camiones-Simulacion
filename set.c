@@ -4,6 +4,7 @@
 
 #include "list.h"
 #include "set.h"
+#include "list.h"
 
 double ran(long *idum) {
 
@@ -47,18 +48,24 @@ int set() {
 	double current=0, termino, toneladas=0,temp_tiempo,temp_double,media_pala,media_camion, media_repcamion;
 	long idum = -275920;
 	pcamion listainicio=NULL,listacargado=NULL,listadescarga=NULL,listamotor=NULL,listainterferencia=NULL,listatrayecto=NULL, listacarga=NULL, listapala=NULL, temp=NULL, listatermino=NULL;
+	var_grales parametros=crea_var();		//crea e inicializa parametros para utilizacion en generacion de reporte
 
 	printf("Simulador de camiones autonomos!\n");
 	printf("Ingrese semilla distinta de 0 para el generador de numeros aleatorios:\n");
 	scanf("%d",&idum);
-	printf("Ingrese media de tiempo entre fallas de los camiones[Default: 1472]\n");
+	parametros->idum = idum;
+	printf("Ingrese media de tiempo entre fallas de los camiones [Default: 1472[min]]\n");
 	scanf("%lf",&media_camion);
-	printf("Ingrese media de tiempo de reparacion de camion [Default: 360]\n");
+	parametros->media_camion = (double)media_camion;
+	printf("Ingrese media de tiempo de reparacion de camion [Default: 360[min]]\n");
 	scanf("%lf",&media_repcamion);
-	printf("Ingrese media de tiempo de reparacion de palas [Default: 105]\n");
+	parametros->media_repcamion = (double)media_repcamion;
+	printf("Ingrese media de tiempo de reparacion de palas [Default: 105[min]]\n");
 	scanf("%lf",&media_pala);	
+	parametros->media_pala =  (double)media_pala;
 	printf("Ingrese tiempo de simulacion [Minutos]\n");
 	scanf("%lf",&termino);
+	parametros->termino = (double)termino;
 	listatermino=insertarenorden(listatermino,creacamion(314159,termino,0,NULL,0));
 	
 	while(ingresando==1){
@@ -67,6 +74,7 @@ int set() {
 		printf("\nIngrese tiempo de partida del camion\n");
 		scanf("%lf",&temp_tiempo);
 		listainicio=insertarenorden(listainicio,creacamion(temp_int,temp_tiempo,termino,&idum,media_repcamion));
+		parametros->cam += 1;
 		printf("\nInsertar otro camion? (1=si, 2=no)\n");
 		scanf("%d",&ingresando);
 		}
@@ -235,7 +243,7 @@ int set() {
 					temp->carga=1;
 					temp->velocidad=1;
 					temp_double=ran(&idum);
-					carga_ocupada=0;			//??
+					carga_ocupada=0;			
 					if(listacarga!=NULL){	listacarga->tiempo=temp->tiempo+0.5;
 								listacarga->tiempo_funcionamiento+=0.5;
 								}
@@ -299,6 +307,11 @@ int set() {
 		}
 	printf("Se extrageron %e toneladas en %e minutos\n",toneladas, termino);
 	printf("El rendimiento final es: %e [Ton/Hora]\n",toneladas/(current/60));
+	parametros->toneladas = toneladas;
+	parametros->current = current;
+
+	reporte_gral(parametros);
+	printf("\nReporte generado (Informe.txt).\nSimulacion finalizada\n");
 
 	return 0;
 }

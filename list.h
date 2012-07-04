@@ -7,6 +7,12 @@ typedef struct protocamion   //Prototipo de camión
 	struct protocamion *next, *falla;
 	} camion, *pcamion;
 
+typedef struct struct_var
+{	double current,termino,toneladas,media_camion,media_repcamion,media_pala;
+	int idum;
+	int cam;		//total de camiones
+} var,*var_grales;
+
 pcamion creacamion(int id, double tiempo, double termino, long *idum, double media_repcamion); //Constructor de camión
 
 pcamion insertarenorden(pcamion lista, pcamion camion); //Insertar ordenadamente
@@ -19,5 +25,6 @@ pcamion eliminarcamion(pcamion lista);
 
 pcamion seleccionarminimo(pcamion A, pcamion B, pcamion C, pcamion D, pcamion E, pcamion F, pcamion G, pcamion H, pcamion I);
 
+var_grales crea_var();
 
 #endif

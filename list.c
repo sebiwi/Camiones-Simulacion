@@ -159,3 +159,12 @@ pcamion seleccionarminimo(pcamion A, pcamion B, pcamion C, pcamion D, pcamion E,
 
 }
 
+var_grales crea_var(){
+	
+	var_grales par=NULL;
+
+	if((par=(var_grales) malloc(sizeof(var))) ==NULL) exit(0);	//par => parametros
+	else 	
+	return par;
+
+}
