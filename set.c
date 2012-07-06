@@ -47,7 +47,7 @@ int set() {
 	int ingresando=1, temp_int, carga_ocupada=0;
 	double current=0, termino, toneladas=0,temp_tiempo,temp_double,media_pala,media_camion, media_repcamion;
 	long idum = -275920;
-	pcamion listainicio=NULL,listacargado=NULL,listadescarga=NULL,listamotor=NULL,listainterferencia=NULL,listatrayecto=NULL, listacarga=NULL, listapala=NULL, temp=NULL, listatermino=NULL;
+	pcamion listainicio=NULL,listacargado=NULL,listadescarga=NULL,listamotor=NULL,listainterferencia=NULL,listatrayecto=NULL, listacarga=NULL, listapala=NULL, temp=NULL, listatermino=NULL, aux=NULL;
 	var_grales parametros=crea_var();		//crea e inicializa parametros para utilizacion en generacion de reporte
 
 	printf("Simulador de camiones autonomos!\n");
@@ -132,6 +132,7 @@ int set() {
 
 		if(temp==listamotor){
 					temp->tiempo+=(-media_repcamion*log(ran(&idum)));//tiempo de reparacion (variable)
+					temp->tiempo_funcionamiento += (temp->tiempo - temp->tiempo_funcionamiento);
 					printf("Camion %d es reparado en t=%e\n",temp->id,temp->tiempo);
 					listamotor=eliminarcamion(listamotor);
 					temp->next=NULL;
@@ -144,6 +145,7 @@ int set() {
 		if(temp==listainterferencia){
 					printf("Camion %d deja de sufrir interferencia en t=%e\n",temp->id,temp->tiempo);
 					temp->tiempo+=5;
+					temp->tiempo_funcionamiento+=5;
 					listainterferencia=eliminarcamion(listainterferencia);
 					temp->next=NULL;
 					temp->senal=1;
@@ -204,6 +206,7 @@ int set() {
 		if(temp==listacarga){	
 					temp_double=ran(&idum);
 					carga_ocupada=1;
+					temp->carga=2;
 					temp->tiempo_trayecto=0;			//resetea valor de tiempo de trayecto
 				    	
 					printf("Camion %d se empieza a cargar en t=%e\n",temp->id,temp->tiempo);
@@ -212,6 +215,7 @@ int set() {
 							printf("Falla de pala mientras se carga camion  %d\n",temp->id);
 
 							temp->tiempo+=(-media_pala* log(ran(&idum)));
+							temp->tiempo_funcionamiento += (temp->tiempo - temp->tiempo_funcionamiento);
 							listacarga=eliminarcamion(listacarga);
 							temp->next=NULL;
 							listapala=insertarenorden(listapala,temp);
@@ -232,6 +236,7 @@ int set() {
 		if(temp==listapala){ 
 					printf("Pala es arreglada en t= %e\n",temp->tiempo);
 					temp->tiempo+=0.5;
+					temp->tiempo_funcionamiento += 0.5;
 					listapala=eliminarcamion(listapala);
 					temp->next=NULL;
 					listacarga=insertaralinicio(listacarga,temp);
@@ -272,7 +277,8 @@ int set() {
 							printf("Camion  %d sufre interferencia en t=%e\n",temp->id,temp->tiempo);
 							temp->tiempo+=5;
 							listacargado=eliminarcamion(listacargado);
-							temp->next=NULL;
+					
+					temp->next=NULL;
 							temp->senal=0;
 							temp->velocidad=0;
 							listainterferencia=insertarenorden(listainterferencia,temp);
@@ -294,7 +300,7 @@ int set() {
 					temp->toneladas_camion+=5;
 					listadescarga=eliminarcamion(listadescarga);
 					temp->next=NULL;
-					temp->carga=0; //conceptual
+					temp->carga=3; 
 					listainicio=insertarenorden(listainicio,temp);
 					toneladas+=5;
 					continue;
@@ -302,16 +308,27 @@ int set() {
 		
 		if(temp==listatermino){
 					printf("Tiempo limite de simulacion alcanzado.(t=%e)\n",temp->tiempo);
+					if(listainicio!=NULL) aux = insertarenorden(aux,listainicio);
+					if(listacargado!=NULL) aux = insertarenorden(aux,listacargado);
+					if(listadescarga!=NULL)  aux = insertarenorden(aux,listadescarga);
+					if(listatrayecto!=NULL)  aux = insertarenorden(aux,listatrayecto);
+					if(listamotor!=NULL)  aux = insertarenorden(aux,listamotor);
+					if(listainterferencia!=NULL) aux = insertarenorden(aux,listainterferencia);
+					if(listacarga!=NULL) aux = insertarenorden(aux,listacarga);
+					if(listapala!=NULL) aux = insertarenorden(aux,listapala);
+					if(listatermino!=NULL) aux = insertarenorden(aux,listatermino);
+					
 					continue;
 					}
 		}
-	printf("Se extrageron %e toneladas en %e minutos\n",toneladas, termino);
+	printf("Se extrajeron %e toneladas en %e minutos\n",toneladas, termino);
 	printf("El rendimiento final es: %e [Ton/Hora]\n",toneladas/(current/60));
 	parametros->toneladas = toneladas;
 	parametros->current = current;
 
 	reporte_gral(parametros);
 	printf("\nReporte generado (Informe.txt).\nSimulacion finalizada\n");
+	estadisticas_camion(aux);
 
 	return 0;
 }

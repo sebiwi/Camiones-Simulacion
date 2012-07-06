@@ -14,6 +14,7 @@ pcamion creacamion(int id, double tiempo, double termino, long *idum, double med
 	else
 	{	pc->id=id;
 		pc->tiempo=tiempo;
+		pc->start=tiempo;
 		pc->next=NULL;
 
 		while(temp<termino){	

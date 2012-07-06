@@ -5,5 +5,6 @@
 #include "set.h"
 
 void reporte_gral(var_grales parametros);
+void estadisticas_camion(pcamion lista);
 
 #endif

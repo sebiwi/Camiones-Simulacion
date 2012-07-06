@@ -3,7 +3,8 @@
 
 typedef struct protocamion   //Prototipo de camión
 {	int id, direccion, senal, motor, velocidad, carga;   //Direccion es 1 para ida, 0 para vuelta, los demas valores son 1 para Ok, y 0 para No.
-	double tiempo, tiempo_funcionamiento, toneladas_camion, tiempo_trayecto;
+	//valores de carga 0 hacia faena, 1 hacia planta, 2 en faena, 3 en planta,
+	double tiempo, tiempo_funcionamiento, toneladas_camion, tiempo_trayecto, start;
 	struct protocamion *next, *falla;
 	} camion, *pcamion;
 

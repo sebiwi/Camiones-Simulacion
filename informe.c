@@ -24,3 +24,43 @@ void reporte_gral(var_grales parametros){
 
 	fclose(AR);
 }
+
+void estadisticas_camion(pcamion lista) {
+	FILE *AR;
+	pcamion aux = lista;
+
+	AR = fopen("Informe.txt","a");
+	fprintf(AR, "\n3-.    Detalle de camiones al finalizar simulacion\n");
+	while (aux->next != NULL)
+	{	
+		fprintf(AR, "\tID de Camion: %d\n", aux->id);
+		fprintf(AR, "\tToneladas extraidas: %e\n", aux->toneladas_camion);
+		fprintf(AR, "\tTiempo de partida: %e\n",aux->start);
+		fprintf(AR, "\tTiempo de funcionamiento: %e [minutos]\n", aux->tiempo_funcionamiento);
+		if (aux->motor == 1)
+			fprintf(AR, "\tEstado del motor: Funcionando\n");
+		else 
+			fprintf(AR, "\tEstado del motor: En reparacion\n");
+
+		switch (aux->carga){
+			case 0:
+				fprintf(AR, "\tUbicacion: Hacia faena (s/carga)\n\n");
+				break;
+			case 1:
+				fprintf(AR, "\tUbicacion: Hacia planta (c/carga)\n\n");
+				break;
+			case 2:
+				fprintf(AR, "\tUbicacion: En faena, en proceso de carga de material\n\n");
+				break;
+			case 3:
+				fprintf(AR, "\tUbicacion: En planta, en proceso de descarga del material\n\n");
+				break;
+			default:
+				break;
+		}
+		aux=aux->next;
+	}	
+
+	
+	fclose(AR);
+}
